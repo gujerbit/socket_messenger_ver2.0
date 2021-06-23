@@ -9,23 +9,23 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class MessengerDisplay extends Display {
-	private JScrollPane messagePanel = new JScrollPane(); //¸Ş½ÃÁö ´ãÀ» ½ºÅ©·Ñ ÆÒ
-	private JScrollPane userPanel = new JScrollPane(); //ÇöÀç ¹æ¿¡ Á¢¼ÓÁßÀÎ À¯Àú ´ãÀ» ½ºÅ©·Ñ ÆÒ
-	private JScrollPane globalUserPanel = new JScrollPane(); //ÀüÃ¼ Á¢¼ÓÁßÀÎ À¯Àú ´ãÀ» ½ºÅ©·Ñ ÆÒ
-	private JScrollPane roomPanel = new JScrollPane(); //ÀüÃ¼ ¹æ ¸ñ·Ï ´ãÀ» ½ºÅ©·Ñ ÆÒ
-	private JTextArea messageView = new JTextArea(); //¸Ş½ÃÁö º¸¿©ÁÖ´Â °ø°£
-	private JTextArea userView = new JTextArea(); //ÇöÀç ¹æ¿¡ Á¢¼ÓÁßÀÎ À¯Àú º¸¿©ÁÖ´Â °ø°£
-	private JTextArea globalUserView = new JTextArea(); //ÀüÃ¼ Á¢¼ÓÁßÀÎ À¯Àú º¸¿©ÁÖ´Â °ø°£
-	private JTextArea roomView = new JTextArea(); //ÀüÃ¼ ¹æ ¸ñ·Ï º¸¿©ÁÖ´Â °ø°£
-	private JTextField messageField = new JTextField(); //¸Ş½ÃÁö Àû´Â °ø°£
-	private JButton send = new JButton("ÀÔ·Â"); //¸Ş½ÃÁö Àü¼Û ¹öÆ°
-	private JButton viewRoom = new JButton("ÃÊ´ë"); //À¯Àú ÃÊ´ë ¹öÆ°
-	private JButton joinRoom = new JButton("¹æ ÀÔÀå"); //¹æ ÀÔÀå ¹öÆ°
-	private JButton exitRoom = new JButton("¹æ ³ª°¡±â"); //¹æ ³ª°¡±â ¹öÆ°
-	private JLabel tip1 = new JLabel("[¸Ş½ÃÁö]");
-	private JLabel tip2 = new JLabel("[Ã¤ÆÃ¹æ À¯Àú ¸ñ·Ï]");
-	private JLabel tip3 = new JLabel("[ÀüÃ¼ À¯Àú ¸ñ·Ï]");
-	private JLabel tip4 = new JLabel("[¹æ ¸ñ·Ï]");
+	private JScrollPane messagePanel = new JScrollPane(); //ë©”ì‹œì§€ ë‹´ì„ ìŠ¤í¬ë¡¤ íŒ¬
+	private JScrollPane userPanel = new JScrollPane(); //í˜„ì¬ ë°©ì— ì ‘ì†ì¤‘ì¸ ìœ ì € ë‹´ì„ ìŠ¤í¬ë¡¤ íŒ¬
+	private JScrollPane globalUserPanel = new JScrollPane(); //ì „ì²´ ì ‘ì†ì¤‘ì¸ ìœ ì € ë‹´ì„ ìŠ¤í¬ë¡¤ íŒ¬
+	private JScrollPane roomPanel = new JScrollPane(); //ì „ì²´ ë°© ëª©ë¡ ë‹´ì„ ìŠ¤í¬ë¡¤ íŒ¬
+	private JTextArea messageView = new JTextArea(); //ë©”ì‹œì§€ ë³´ì—¬ì£¼ëŠ” ê³µê°„
+	private JTextArea userView = new JTextArea(); //í˜„ì¬ ë°©ì— ì ‘ì†ì¤‘ì¸ ìœ ì € ë³´ì—¬ì£¼ëŠ” ê³µê°„
+	private JTextArea globalUserView = new JTextArea(); //ì „ì²´ ì ‘ì†ì¤‘ì¸ ìœ ì € ë³´ì—¬ì£¼ëŠ” ê³µê°„
+	private JTextArea roomView = new JTextArea(); //ì „ì²´ ë°© ëª©ë¡ ë³´ì—¬ì£¼ëŠ” ê³µê°„
+	private JTextField messageField = new JTextField(); //ë©”ì‹œì§€ ì ëŠ” ê³µê°„
+	private JButton send = new JButton("ì…ë ¥"); //ë©”ì‹œì§€ ì „ì†¡ ë²„íŠ¼
+	private JButton viewRoom = new JButton("ì´ˆëŒ€"); //ìœ ì € ì´ˆëŒ€ ë²„íŠ¼
+	private JButton joinRoom = new JButton("ë°© ì…ì¥"); //ë°© ì…ì¥ ë²„íŠ¼
+	private JButton exitRoom = new JButton("ë°© ë‚˜ê°€ê¸°"); //ë°© ë‚˜ê°€ê¸° ë²„íŠ¼
+	private JLabel tip1 = new JLabel("[ë©”ì‹œì§€]");
+	private JLabel tip2 = new JLabel("[ì±„íŒ…ë°© ìœ ì € ëª©ë¡]");
+	private JLabel tip3 = new JLabel("[ì „ì²´ ìœ ì € ëª©ë¡]");
+	private JLabel tip4 = new JLabel("[ë°© ëª©ë¡]");
 	
 	@Override
 	public void setDisplay() {
@@ -52,9 +52,9 @@ public class MessengerDisplay extends Display {
 		roomView.setBounds(0, 0, 200, 600);
 		messageField.setBounds(0, 600, 400, 65);
 		send.setBounds(400, 600, 100, 65);
-		viewRoom.setBounds(500, 600, 200, 65);
-		joinRoom.setBounds(700, 600, 200, 65);
-		exitRoom.setBounds(900, 600, 200, 65);
+		exitRoom.setBounds(500, 600, 200, 65);
+		viewRoom.setBounds(700, 600, 200, 65);
+		joinRoom.setBounds(900, 600, 200, 65);
 		tip1.setBounds(0, 0, 500, 20);
 		tip2.setBounds(500, 0, 200, 20);
 		tip3.setBounds(700, 0, 200, 20);
@@ -82,6 +82,24 @@ public class MessengerDisplay extends Display {
 		frame.add(tip2);
 		frame.add(tip3);
 		frame.add(tip4);
+	}
+	
+	public void setMessage(String message) {
+		messageView.append(message + "\n");
+	}
+	
+	public void setUser(String user) {
+		userView.append(user + "\n");
+	}
+	
+	public void setGlobalUser(String user) {
+		globalUserView.append(user + "\n");
+	}
+	
+	public void setRoom(String room) {
+		int line = roomView.getLineCount();
+		System.out.println(line);
+		roomView.append(room + "\n");
 	}
 	
 }

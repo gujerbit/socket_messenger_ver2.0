@@ -9,13 +9,13 @@ import javax.swing.JTextField;
 
 public class ConnectDisplay extends Display {
 	private GridLayout layout = new GridLayout(7, 1);
-	private JLabel tip1 = new JLabel("Á¢¼ÓÇÏ·Á´Â ¼­¹öÀÇ ¾ÆÀÌÇÇ ÁÖ¼Ò¸¦ ÀÔ·ÂÇÏ¼¼¿ä");
-	private JLabel tip2 = new JLabel("Á¢¼ÓÇÏ·Á´Â ¹æ ¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä");
-	private JLabel tip3 = new JLabel("»ç¿ëÀÚ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä");
-	public JTextField inputIPAdress = new JTextField("10.10.30.107");
+	private JLabel tip1 = new JLabel("ì ‘ì†í•˜ë ¤ëŠ” ì„œë²„ì˜ ì•„ì´í”¼ ì£¼ì†Œë¥¼ ì…ë ¥í•˜ì„¸ìš”");
+	private JLabel tip2 = new JLabel("ì ‘ì†í•˜ë ¤ëŠ” ë°© ë²ˆí˜¸ë¥¼ ì…ë ¥í•˜ì„¸ìš”");
+	private JLabel tip3 = new JLabel("ì‚¬ìš©ì ì´ë¦„ì„ ì…ë ¥í•˜ì„¸ìš”");
+	public JTextField inputIPAdress = new JTextField("127.0.0.1");//10.10.30.107
 	public JTextField inputRoomNum = new JTextField("1");
 	public JTextField inputUserName = new JTextField();
-	public JButton connect = new JButton("ÀÔ·Â");
+	public JButton connect = new JButton("ì…ë ¥");
 
 	@Override
 	public void setDisplay() {
@@ -28,6 +28,10 @@ public class ConnectDisplay extends Display {
 		frame.add(tip3);
 		frame.add(inputUserName);
 		frame.add(connect);
+	}
+	
+	public void closeDisplay() {
+		frame.setVisible(false);
 	}
 	
 }
