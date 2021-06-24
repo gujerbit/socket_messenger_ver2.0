@@ -51,52 +51,43 @@ public class ServerReceive extends Receive implements Runnable {
 				globalClients.put(name, client);
 			}
 			
-			setRoom(roomId, name, sendMessage, vo);
+			setRoom(roomId, name, sendMessage);
 		} else if(message.contains("@exit")) {
 			
+		} else if(message.contains("@message")) {
+			decodeMessage = message.split("@message");
+			String name = decodeMessage[0];
+			String roomId = decodeMessage[1].split("@roomId")[1];
+			sendMessage = "[" + name + " : " + decodeMessage[1].split("@roomId")[0] + "]";
+			
+			setRoom(roomId, name, sendMessage);
+		} else if(message.contains("@file")) {
+			decodeMessage = message.split("@file");
+			String name = decodeMessage[0];
+			String roomId = decodeMessage[1].split("@roomId")[1];
+			String file = decodeMessage[1].split("@roomId")[0];
+			sendMessage = "[" + name + " : " + file + "]";
+			
+			setRoom(roomId, name, sendMessage);
 		}
 	}
 	
 	@Override
 	protected void update() {
 		try {
-			Thread localClear = null;
-			Thread globalClear = null;
-			Thread setMessage = null;
-			Thread setCurrentUser = null;
-			Thread setGlobalUser = null;
-			Thread setRoom = null;
-			
-			for(String key : clients.keySet()) { //현재 방
-				localClear = new Thread(new Send(clients.get(key), "@clear/local"));
-				localClear.start();
-			}
-			
-			localClear.join();
+			clearLocal();
 			
 			for(String key : rooms.keySet()) {
 				vo = rooms.get(key);
 				clients = vo.getClients();
 				messages = vo.getMessages();
 				
-				for(String user : clients.keySet()) {
-					globalClear = new Thread(new Send(clients.get(user), "@clear/global"));
-					globalClear.start();
-				}
+				clearGlobal();
 			}
 			
-			globalClear.join();
-			
 			for(String key : clients.keySet()) { //현재 방
-				for(String message : messages) {
-					setMessage = new Thread(new Send(clients.get(key), message + "@update/message"));
-					setMessage.start();
-				}
-				
-				for(String name : clients.keySet()) {
-					setCurrentUser = new Thread(new Send(clients.get(key), name + "@update/currentUser"));
-					setCurrentUser.start();
-				}
+				messageSetting(key);
+				currentUserSetting(key);
 			}
 			
 			for(String key : rooms.keySet()) { //모든 방
@@ -105,15 +96,8 @@ public class ServerReceive extends Receive implements Runnable {
 				messages = vo.getMessages();
 				
 				for(String user : clients.keySet()) {
-					for(String value : globalClients.keySet()) {
-						setGlobalUser = new Thread(new Send(clients.get(user), value + "@update/globalUser"));
-						setGlobalUser.start();
-					}
-					
-					for(String value : rooms.keySet()) {
-						setRoom = new Thread(new Send(clients.get(user), value + "@update/room"));
-						setRoom.start();
-					}
+					globalUserSetting(user);
+					roomSetting(user);
 				}
 			}
 		} catch (Exception e) {
@@ -121,7 +105,7 @@ public class ServerReceive extends Receive implements Runnable {
 		}
 	}
 	
-	private void setRoom(String roomId, String name, String sendMessage, RoomVO vo) {
+	private void setRoom(String roomId, String name, String sendMessage) {
 		if(rooms.isEmpty() || !rooms.containsKey(roomId)) {
 			clients = new HashMap<>();
 			messages = new ArrayList<String>();
@@ -137,6 +121,78 @@ public class ServerReceive extends Receive implements Runnable {
 		rooms.put(roomId, vo);
 		
 		update();
+	}
+	
+	private synchronized void clearLocal() {
+		try {
+			for(String key : clients.keySet()) { //현재 방
+				Thread localClear = new Thread(new Send(clients.get(key), "@clear/local"));
+				localClear.start();
+				localClear.join();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private synchronized void clearGlobal() {
+		try {
+			for(String user : clients.keySet()) {
+				Thread globalClear = new Thread(new Send(clients.get(user), "@clear/global"));
+				globalClear.start();
+				globalClear.join();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private synchronized void messageSetting(String key) {
+		try {
+			for(String message : messages) {
+				Thread setMessage = new Thread(new Send(clients.get(key), message + "@update/message"));
+				setMessage.start();
+				setMessage.join();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private synchronized void currentUserSetting(String key) {
+		try {
+			for(String name : clients.keySet()) {
+				Thread setCurrentUser = new Thread(new Send(clients.get(key), name + "@update/currentUser"));
+				setCurrentUser.start();
+				setCurrentUser.join();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private synchronized void globalUserSetting(String user) {
+		try {
+			for(String value : globalClients.keySet()) {
+				Thread setGlobalUser = new Thread(new Send(clients.get(user), value + "@update/globalUser"));
+				setGlobalUser.start();
+				setGlobalUser.join();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private synchronized void roomSetting(String user) {
+		try {
+			for(String value : rooms.keySet()) {
+				Thread setRoom = new Thread(new Send(clients.get(user), value + "@update/room"));
+				setRoom.start();
+				setRoom.join();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
