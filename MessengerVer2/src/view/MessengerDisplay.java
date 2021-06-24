@@ -102,4 +102,14 @@ public class MessengerDisplay extends Display {
 		roomView.append(room + "\n");
 	}
 	
+	public void clearLocal() {
+		messageView.setText("");
+		userView.setText("");
+	}
+	
+	public void clearGlobal() {
+		globalUserView.setText("");
+		roomView.setText("");
+	}
+	
 }

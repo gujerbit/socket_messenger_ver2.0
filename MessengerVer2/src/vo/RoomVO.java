@@ -5,21 +5,21 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class RoomVO {
-
-	private Map<String, Socket> clients; //현재 방에 접속중인 인원
-	private ArrayList<String> messages; //현재 방에 입력된 메시지들
 	
-	public RoomVO(Map<String, Socket> clients, ArrayList<String> messages) {
-		this.clients = clients;
-		this.messages = messages;
-	}
+	private Map<String, Socket> clients; //현재 방에 있는 유저 정보
+ 	private ArrayList<String> messages; //현재 방에 있는 메시지 정보
+ 	
+ 	public RoomVO(Map<String, Socket> clients, ArrayList<String> messages) {
+ 		this.clients = clients;
+ 		this.messages = messages;
+ 	}
 
 	public Map<String, Socket> getClients() {
 		return clients;
 	}
 
-	public void setClients(Map<String, Socket> client) {
-		this.clients = client;
+	public void setClients(Map<String, Socket> clients) {
+		this.clients = clients;
 	}
 
 	public ArrayList<String> getMessages() {
@@ -29,5 +29,5 @@ public class RoomVO {
 	public void setMessages(ArrayList<String> messages) {
 		this.messages = messages;
 	}
-	
+ 	
 }

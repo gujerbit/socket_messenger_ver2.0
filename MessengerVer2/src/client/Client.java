@@ -2,54 +2,47 @@ package client;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
+import model.Default;
+import model.Send;
 import view.ConnectDisplay;
 import view.MessengerDisplay;
-import vo.RoomVO;
 
-public class Client {
+public class Client extends Default {
+	private static String name = "";
+	private static String roomId = "";
 
 	public static void main(String[] args) {
-		ConnectDisplay display = new ConnectDisplay();
-		MessengerDisplay messenger = new MessengerDisplay();
-		Map<Integer, RoomVO> rooms = new HashMap<>(); //방 정보
-		Map<String, Socket> clients = new HashMap<>(); //전체 사용자
-		
 		try {
-			Socket client = new Socket(display.inputIPAdress.getText(), 1724);
+			ConnectDisplay connect = new ConnectDisplay();
+			MessengerDisplay messenger = new MessengerDisplay();
+			Socket client = new Socket(connect.inputIPAdress.getText(), 1724);
 			
-			Thread clientReceive = new Thread(new ClientReceive(client, messenger, rooms, clients));
-			clientReceive.start();
+			connect.createDisplay();
+			connect.setDisplay();
+			connect.showDisplay();
 			
-			display.createDisplay();
-			display.setDisplay();
-			display.showDisplay();
-			
-			display.connect.addActionListener(new ActionListener() {	
+			connect.connect.addActionListener(new ActionListener() {	
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if(display.inputIPAdress.getText().isEmpty() || display.inputRoomNum.getText().isEmpty() || display.inputUserName.getText().isEmpty()) {
-						System.out.println("필수값 빠져있음");
+					if(connect.inputIPAdress.getText().isEmpty() || connect.inputRoomNum.getText().isEmpty() || connect.inputUserName.getText().isEmpty()) {
 						return;
 					}
 					
-					try {
-						String message = display.inputUserName.getText() + "@join" + display.inputRoomNum.getText();
-						Thread join = new Thread(new ClientSend(client, display, message));
-						join.start();
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
+					roomId = connect.inputRoomNum.getText();
+					name = connect.inputUserName.getText();
 					
-					display.closeDisplay();
+					Thread thread = new Thread(new Send(client, name + "@join" + roomId));
+					thread.start();
+					
+					connect.closeDisplay();
 					messenger.createDisplay();
 					messenger.setDisplay();
 					messenger.showDisplay();
+					
+					Thread receive = new Thread(new ClientReceive(client, messenger));
+					receive.start();
 				}
 			});
 		} catch (Exception e) {

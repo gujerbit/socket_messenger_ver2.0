@@ -3,62 +3,72 @@ package client;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
-import view.Display;
+import model.Receive;
 import view.MessengerDisplay;
 import vo.RoomVO;
 
-public class ClientReceive implements Runnable {
-	private Socket client = null;
-	private MessengerDisplay display = null;
-	private Map<Integer, RoomVO> rooms = null;
-	private Map<String, Socket> clients = null;
-
-	public ClientReceive(Socket client, MessengerDisplay display, Map<Integer, RoomVO> rooms, Map<String, Socket> clients) {
+public class ClientReceive extends Receive implements Runnable {
+	private Socket client;
+	private MessengerDisplay messenger;
+	private String content;
+	private String protocol;
+	
+	public ClientReceive(Socket client, MessengerDisplay messenger) {
 		this.client = client;
-		this.display = display;
-		this.rooms = rooms;
-		this.clients = clients;
+		this.messenger = messenger;
 	}
-
+	
 	@Override
 	public void run() {
-		while (true) {
+		while(true) {
 			try {
 				InputStream input = client.getInputStream();
 				DataInputStream data = new DataInputStream(input);
 				String message = data.readUTF();
-
-				if (message.contains("@")) {
-					String[] splitMsg = message.split("@");
-					String msg = splitMsg[0];
-					if (message.contains("@message")) {
-						display.setMessage(msg);
-					} else if (message.contains("@user")) {
-						String roomId = splitMsg[1];
-						
-						if(rooms.isEmpty()) {
-							rooms.get(roomId).getClients().put(msg, client);
-						} else {
-							for(String key : rooms.get(roomId).getClients().keySet()) {
-								if(!rooms.get(roomId).getClients().get(key).equals(msg)) display.setUser(msg);
-							}
-						}
-					} else if (message.contains("@globalUser")) {
-						if(!clients.containsValue(msg)) {
-							clients.put(msg, client);
-							display.setGlobalUser(msg);
-						}
-					} else if (message.contains("@room")) {
-						display.setRoom(msg);
-					}
-				}
+				
+				protocolRead(message);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
-
+	
+	@Override
+	protected void protocolRead(String message) {
+		if(message.contains("@clear")) {
+			String[] splitMessage = message.split("/");
+			protocol = splitMessage[1];
+			
+			clear();
+		} else if(message.contains("@update")) {
+			String[] splitMessage = message.split("@update");
+			content = splitMessage[0];
+			protocol = splitMessage[1];
+			
+			update();
+		}
+	}
+	
+	@Override
+	protected void update() {
+		if(protocol.equals("/message")) {
+			messenger.setMessage(content);
+		} else if(protocol.equals("/currentUser")) {
+			messenger.setUser(content);
+		} else if(protocol.equals("/globalUser")) {
+			messenger.setGlobalUser(content);
+		} else if(protocol.equals("/room")) {
+			messenger.setRoom(content);
+		}
+	}
+	
+	private void clear() {
+		if(protocol.equals("local")) {
+			messenger.clearLocal();
+		} else if(protocol.equals("global")) {
+			messenger.clearGlobal();
+		}
+	}
+	
 }
