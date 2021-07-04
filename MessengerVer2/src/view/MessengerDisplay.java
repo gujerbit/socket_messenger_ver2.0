@@ -1,26 +1,16 @@
 package view;
 
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.StyledDocument;
 
 public class MessengerDisplay extends Display {
@@ -50,6 +40,13 @@ public class MessengerDisplay extends Display {
 		frame.setPreferredSize(new Dimension(1110, 700));
 		
 		frame.setLayout(null);
+		
+		//chooser.setCurrentDirectory(new File(System.getProperty("user.home") + "//" + "Desktop"));
+		
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("png 파일", "png");
+		chooser.addChoosableFileFilter(filter);
+		filter = new FileNameExtensionFilter("jpg 파일", "jpg");
+		chooser.addChoosableFileFilter(filter);
 		
 		messagePanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		messagePanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);

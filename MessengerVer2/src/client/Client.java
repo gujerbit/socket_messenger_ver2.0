@@ -1,19 +1,11 @@
 package client;
 
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.net.Socket;
 
-import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
 
 import model.Default;
 import model.Send;
@@ -77,44 +69,11 @@ public class Client extends Default {
 					int select = messenger.chooser.showOpenDialog(null);
 					
 					if(select == JFileChooser.APPROVE_OPTION) {
-						String dir = messenger.chooser.getSelectedFile().toString();
-						File file = new File(dir);
+						File file = messenger.chooser.getSelectedFile();
 						String fileName = file.getName();
 						
-						Thread thread = new Thread(new Send(client, name + "@file" + fileName + "@roomId" + roomId));
+						Thread thread = new Thread(new Send(client, name + "@file" + "resources/" + fileName + "@roomId" + roomId));
 						thread.start();
-//						File file = new File(dir);					
-//						try {
-//							FileInputStream fis = new FileInputStream(file);
-//							String ext = file.getName().substring(file.getName().lastIndexOf(".") + 1);
-//							
-//							if(ext.equals("jpg") || ext.equals("png")) {
-//								Image img = ImageIO.read(fis);
-//								JFrame temp = new JFrame();
-//								JTextArea imgLabel = new JTextArea() {
-//									@Override
-//									protected void paintComponent(Graphics g) {
-//										
-//										super.paintComponent(g);
-//										g.drawImage(img, 0, 0, 145, 145, null); //10번 enter
-//									}
-//								};
-//								
-//								temp.add(imgLabel);
-//								temp.pack();
-//								temp.setVisible(true);
-//							} else if(ext.equals("txt")) {
-//								InputStreamReader isr = new InputStreamReader(fis, "utf-8");
-//								BufferedReader br = new BufferedReader(isr);					
-//								String line = null;
-//								
-//								while((line = br.readLine()) != null) {
-//									System.out.println(line);
-//								}
-//							}
-//						} catch (Exception ex) {
-//							ex.printStackTrace();
-//						}
 					} else if(select == JFileChooser.CANCEL_OPTION) {
 						System.out.println("취소");
 					}
