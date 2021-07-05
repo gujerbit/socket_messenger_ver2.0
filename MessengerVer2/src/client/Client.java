@@ -70,9 +70,9 @@ public class Client extends Default {
 					
 					if(select == JFileChooser.APPROVE_OPTION) {
 						File file = messenger.chooser.getSelectedFile();
-						String fileName = file.getName();
+						String fileName = file.getAbsolutePath();
 						
-						Thread thread = new Thread(new Send(client, name + "@file" + "resources/" + fileName + "@roomId" + roomId));
+						Thread thread = new Thread(new Send(client, name + "@file" + fileName + "@roomId" + roomId));
 						thread.start();
 					} else if(select == JFileChooser.CANCEL_OPTION) {
 						System.out.println("취소");

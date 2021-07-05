@@ -65,16 +65,28 @@ public class ServerReceive extends Receive implements Runnable {
 			String roomId = decodeMessage[1].split("@roomId")[1];
 			sendMessage = "[" + name + " : " + decodeMessage[1].split("@roomId")[0] + "]";
 
-			setRoom(roomId, name, sendMessage);
+			//setRoom(roomId, name, sendMessage);
+			System.out.println(message);
+			vo = rooms.get(roomId);
+			clients = vo.getClients();
+			messages = vo.getMessages();
+			
+			messages.add(sendMessage);
+			vo.setMessages(messages);
+			rooms.put(roomId, vo);
+
+			update();
 		} else if (message.contains("@file")) {
 			decodeMessage = message.split("@file");
 			String name = decodeMessage[0];
 			String roomId = decodeMessage[1].split("@roomId")[1];
 			String file = decodeMessage[1].split("@roomId")[0];
-			sendMessage = "[" + name + " : " + file + "]";
+			String dir = "";
 
 			try {
-				File outputFile = new File("output/" + file.substring(10));
+				File temp = new File(file);
+				dir = "output/" + temp.getName();
+				File outputFile = new File(dir);
 				FileInputStream fis = new FileInputStream(file);
 				FileOutputStream fos = new FileOutputStream(outputFile);
 				int buffer = 0;
@@ -88,7 +100,8 @@ public class ServerReceive extends Receive implements Runnable {
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
-				setRoom(roomId, name, sendMessage);
+				sendMessage = "[" + name + " : " + dir + "]";
+				//setRoom(roomId, name, sendMessage);
 			}
 		}
 	}
@@ -106,11 +119,6 @@ public class ServerReceive extends Receive implements Runnable {
 				clearGlobal();
 			}
 
-			for (String key : clients.keySet()) { // 현재 방
-				messageSetting(key);
-				currentUserSetting(key);
-			}
-
 			for (String key : rooms.keySet()) { // 모든 방
 				vo = rooms.get(key);
 				clients = vo.getClients();
@@ -120,6 +128,11 @@ public class ServerReceive extends Receive implements Runnable {
 					globalUserSetting(user);
 					roomSetting(user);
 				}
+			}
+			
+			for (String key : clients.keySet()) { // 현재 방
+				messageSetting(key);
+				currentUserSetting(key);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

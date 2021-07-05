@@ -142,8 +142,7 @@ public class MessengerDisplay extends Display {
 	
 	public void setImage(File file) {
 		try {
-			String dir = file.getAbsolutePath();
-			ImageIcon img = new ImageIcon(dir);
+			ImageIcon img = new ImageIcon(file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 1));
 			
 			messageView.insertIcon(img);
 		} catch (Exception e) {

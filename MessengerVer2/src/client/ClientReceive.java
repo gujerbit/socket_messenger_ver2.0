@@ -55,9 +55,9 @@ public class ClientReceive extends Receive implements Runnable {
 		if(protocol.equals("/message")) {
 			messenger.setMessage(content);
 			
-			if(content.contains(".png") || content.contains(".jpg")) {
-				String fullFileName = "C:\\Users\\준영\\Desktop\\" + content.split(": ")[1];
-				File file = new File(fullFileName.substring(0, fullFileName.length()-1));
+			if(content.contains("output/")) {
+				String fileName = "output/" + content.split("output/")[1];
+				File file = new File(fileName);
 				messenger.setImage(file);
 			}
 		} else if(protocol.equals("/currentUser")) {
