@@ -2,6 +2,7 @@ package view;
 
 import java.awt.Dimension;
 import java.io.File;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -11,7 +12,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.Element;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 
 public class MessengerDisplay extends Display {
 	private JScrollPane messagePanel = new JScrollPane(); //메시지 담을 스크롤 팬
@@ -33,7 +37,8 @@ public class MessengerDisplay extends Display {
 	private JLabel tip3 = new JLabel("[전체 유저 목록]");
 	private JLabel tip4 = new JLabel("[방 목록]");
 	public JFileChooser chooser = new JFileChooser();
-	private StyledDocument doc = messageView.getStyledDocument();
+	private HTMLEditorKit editor = new HTMLEditorKit();
+	private HTMLDocument doc = new HTMLDocument();
 	
 	@Override
 	public void setDisplay() {
@@ -100,18 +105,13 @@ public class MessengerDisplay extends Display {
 		frame.add(tip3);
 		frame.add(tip4);
 		
+		messageView.setEditorKit(editor);
+		messageView.setDocument(doc);
+		
 		messageView.setEditable(false);
 		userView.setEditable(false);
 		globalUserView.setEditable(false);
 		roomView.setEditable(false);
-	}
-	
-	public void setMessage(String message) {
-		try {
-			doc.insertString(doc.getLength(), message + "\n", null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public void setUser(String user) {
@@ -140,11 +140,23 @@ public class MessengerDisplay extends Display {
 		frame.setTitle(roomId + "번방");
 	}
 	
+	public void setMessage(String message) {
+		try {
+			//doc.insertString(doc.getLength(), "<b>" + message + "</b>\n", null);
+			editor.insertHTML(doc, doc.getLength(), message, 0, 0, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void setImage(File file) {
 		try {
-			ImageIcon img = new ImageIcon(file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 1));
-			
-			messageView.insertIcon(img);
+			//file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 1)
+			//System.out.println(file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 1));
+			//System.out.println(file.getName().substring(0, file.getName().length() - 1));
+			//System.out.println(file.getAbsolutePath().toString().substring(0, file.getAbsolutePath().toString().length() - 1));
+			editor.insertHTML(doc, doc.getLength(), "<html><body><img src=\"" + "file:/" + file.getAbsolutePath() + "\" /></body></html>", 0, 0, null);
+			System.out.println(file.getAbsolutePath());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

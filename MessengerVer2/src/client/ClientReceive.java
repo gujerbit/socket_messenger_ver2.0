@@ -57,7 +57,7 @@ public class ClientReceive extends Receive implements Runnable {
 			
 			if(content.contains("output/")) {
 				String fileName = "output/" + content.split("output/")[1];
-				File file = new File(fileName);
+				File file = new File(fileName.substring(0, fileName.length() - 1));
 				messenger.setImage(file);
 			}
 		} else if(protocol.equals("/currentUser")) {

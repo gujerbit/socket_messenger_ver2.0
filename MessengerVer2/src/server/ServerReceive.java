@@ -65,17 +65,7 @@ public class ServerReceive extends Receive implements Runnable {
 			String roomId = decodeMessage[1].split("@roomId")[1];
 			sendMessage = "[" + name + " : " + decodeMessage[1].split("@roomId")[0] + "]";
 
-			//setRoom(roomId, name, sendMessage);
-			System.out.println(message);
-			vo = rooms.get(roomId);
-			clients = vo.getClients();
-			messages = vo.getMessages();
-			
-			messages.add(sendMessage);
-			vo.setMessages(messages);
-			rooms.put(roomId, vo);
-
-			update();
+			setContent(roomId, sendMessage);
 		} else if (message.contains("@file")) {
 			decodeMessage = message.split("@file");
 			String name = decodeMessage[0];
@@ -101,7 +91,7 @@ public class ServerReceive extends Receive implements Runnable {
 				e.printStackTrace();
 			} finally {
 				sendMessage = "[" + name + " : " + dir + "]";
-				//setRoom(roomId, name, sendMessage);
+				setContent(roomId, sendMessage);
 			}
 		}
 	}
@@ -110,13 +100,17 @@ public class ServerReceive extends Receive implements Runnable {
 	protected void update() {
 		try {
 			clearLocal();
-
+			
 			for (String key : rooms.keySet()) {
-				vo = rooms.get(key);
-				clients = vo.getClients();
-				messages = vo.getMessages();
+				RoomVO vo = rooms.get(key);
+				Map<String, Socket> clients = vo.getClients();
 
-				clearGlobal();
+				clearGlobal(clients);
+			}
+			
+			for (String key : clients.keySet()) { // 현재 방
+				messageSetting(key);
+				currentUserSetting(key);
 			}
 
 			for (String key : rooms.keySet()) { // 모든 방
@@ -128,11 +122,6 @@ public class ServerReceive extends Receive implements Runnable {
 					globalUserSetting(user);
 					roomSetting(user);
 				}
-			}
-			
-			for (String key : clients.keySet()) { // 현재 방
-				messageSetting(key);
-				currentUserSetting(key);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -153,7 +142,19 @@ public class ServerReceive extends Receive implements Runnable {
 		messages.add(sendMessage);
 		vo = new RoomVO(clients, messages);
 		rooms.put(roomId, vo);
-
+		
+		update();
+	}
+	
+	private void setContent(String roomId, String sendMessage) {
+		vo = rooms.get(roomId);
+		clients = vo.getClients();
+		messages = vo.getMessages();
+		
+		messages.add(sendMessage);
+		vo.setMessages(messages);
+		rooms.put(roomId, vo);
+		
 		update();
 	}
 
@@ -169,7 +170,7 @@ public class ServerReceive extends Receive implements Runnable {
 		}
 	}
 
-	private synchronized void clearGlobal() {
+	private synchronized void clearGlobal(Map<String, Socket> clients) {
 		try {
 			for (String user : clients.keySet()) {
 				Thread globalClear = new Thread(new Send(clients.get(user), "@clear/global"));
