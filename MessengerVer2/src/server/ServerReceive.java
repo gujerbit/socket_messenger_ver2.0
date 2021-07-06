@@ -21,6 +21,8 @@ public class ServerReceive extends Receive implements Runnable {
 	private RoomVO vo;
 	private InputStream input = null;
 	private DataInputStream data = null;
+	private boolean fileUploading = false;
+	private FileOutputStream fos = null;
 
 	public ServerReceive(Socket client) {
 		this.client = client;
@@ -45,53 +47,86 @@ public class ServerReceive extends Receive implements Runnable {
 	protected void protocolRead(String message) {
 		String[] decodeMessage = null;
 		String sendMessage = "";
-
-		if (message.contains("@join")) {
-			decodeMessage = message.split("@join");
-			String name = decodeMessage[0];
-			String roomId = decodeMessage[1];
-			sendMessage = "[Server Message : " + name + "님이 " + roomId + "방에 입장하셨습니다.]";
-
-			if (globalClients.isEmpty() || !globalClients.containsKey(name)) {
-				globalClients.put(name, client);
-			}
-
-			setRoom(roomId, name, sendMessage);
-		} else if (message.contains("@exit")) {
-
-		} else if (message.contains("@message")) {
-			decodeMessage = message.split("@message");
-			String name = decodeMessage[0];
-			String roomId = decodeMessage[1].split("@roomId")[1];
-			sendMessage = "[" + name + " : " + decodeMessage[1].split("@roomId")[0] + "]";
-
-			setContent(roomId, sendMessage);
-		} else if (message.contains("@file")) {
-			decodeMessage = message.split("@file");
-			String name = decodeMessage[0];
-			String roomId = decodeMessage[1].split("@roomId")[1];
-			String file = decodeMessage[1].split("@roomId")[0];
-			String dir = "";
-
-			try {
-				File temp = new File(file);
-				dir = "output/" + temp.getName();
-				File outputFile = new File(dir);
-				FileInputStream fis = new FileInputStream(file);
-				FileOutputStream fos = new FileOutputStream(outputFile);
-				int buffer = 0;
-
-				while((buffer = fis.read()) != -1) {
-					fos.write(buffer);
-				}
+		
+		if(fileUploading) {
+			if(message.contains("@finish")) {
+				fileUploading = false;
 				
-				fos.close();
-				fis.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				sendMessage = "[" + name + " : " + dir + "]";
+				for(String key : clients.keySet()) {
+					Thread thread = new Thread(new Send(clients.get(key), "@finish"));
+					thread.start();
+				}
+			} else {
+				try {
+					for(String key : clients.keySet()) {
+						Thread thread = new Thread(new Send(clients.get(key), message));
+						thread.start();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		} else {
+			if (message.contains("@join")) {
+				decodeMessage = message.split("@join");
+				String name = decodeMessage[0];
+				String roomId = decodeMessage[1];
+				sendMessage = "[Server Message : " + name + "님이 " + roomId + "방에 입장하셨습니다.]";
+
+				if (globalClients.isEmpty() || !globalClients.containsKey(name)) {
+					globalClients.put(name, client);
+				}
+
+				setRoom(roomId, name, sendMessage);
+			} else if (message.contains("@exit")) {
+
+			} else if (message.contains("@message")) {
+				decodeMessage = message.split("@message");
+				String name = decodeMessage[0];
+				String roomId = decodeMessage[1].split("@roomId")[1];
+				sendMessage = "[" + name + " : " + decodeMessage[1].split("@roomId")[0] + "]";
+
 				setContent(roomId, sendMessage);
+			} else if (message.contains("@file")) {
+				decodeMessage = message.split("@file");
+//				String name = decodeMessage[0];
+				String roomId = decodeMessage[1].split("@roomId")[1];
+//				String file = decodeMessage[1].split("@roomId")[0];
+//				System.out.println(file);
+//				String dir = "";
+//
+//				try {
+//					File temp = new File(file);
+//					dir = "output/" + temp.getName();
+//					File outputFile = new File(dir);
+//					FileInputStream fis = new FileInputStream(file);
+//					FileOutputStream fos = new FileOutputStream(outputFile);
+//					int buffer = 0;
+//
+//					while((buffer = fis.read()) != -1) {
+//						fos.write(buffer);
+//					}
+//					
+//					fos.close();
+//					fis.close();
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				} finally {
+//					sendMessage = dir;
+//					setContent(roomId, sendMessage);
+//				}
+				fileUploading = true;
+				try {
+					vo = rooms.get(roomId);
+					clients = vo.getClients();
+					
+					for(String key : clients.keySet()) {
+						Thread thread = new Thread(new Send(clients.get(key), "@upload"));
+						thread.start();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

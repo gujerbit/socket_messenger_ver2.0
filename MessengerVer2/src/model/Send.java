@@ -35,6 +35,8 @@ public class Send implements Runnable {
 				}
 				
 				fis.close();
+				
+				data.writeUTF("@finish");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

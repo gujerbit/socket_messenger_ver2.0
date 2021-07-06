@@ -2,6 +2,7 @@ package client;
 
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.Socket;
 
@@ -13,6 +14,7 @@ public class ClientReceive extends Receive implements Runnable {
 	private MessengerDisplay messenger;
 	private String content;
 	private String protocol;
+	private boolean fileUploading = false;
 	
 	public ClientReceive(Socket client, MessengerDisplay messenger) {
 		this.client = client;
@@ -36,17 +38,27 @@ public class ClientReceive extends Receive implements Runnable {
 	
 	@Override
 	protected void protocolRead(String message) {
-		if(message.contains("@clear")) {
-			String[] splitMessage = message.split("/");
-			protocol = splitMessage[1];
-			
-			clear();
-		} else if(message.contains("@update")) {
-			String[] splitMessage = message.split("@update");
-			content = splitMessage[0];
-			protocol = splitMessage[1];
-			
-			update();
+		if(fileUploading) {
+			if(message.contains("@finish")) {
+				fileUploading = false;
+			} else {
+				
+			}
+		} else {
+			if(message.contains("@clear")) {
+				String[] splitMessage = message.split("/");
+				protocol = splitMessage[1];
+				
+				clear();
+			} else if(message.contains("@update")) {
+				String[] splitMessage = message.split("@update");
+				content = splitMessage[0];
+				protocol = splitMessage[1];
+				
+				update();
+			} else if(message.contains("@upload")) {
+				fileUploading = true;
+			}
 		}
 	}
 	
@@ -54,12 +66,19 @@ public class ClientReceive extends Receive implements Runnable {
 	protected void update() {
 		if(protocol.equals("/message")) {
 			messenger.setMessage(content);
+		} else if(protocol.contains("/img")) {
+			String[] decodeMessage = content.split("@file");
+			String fileName = decodeMessage[1].split("@roomId")[0];
 			
-			if(content.contains("output/")) {
-				String fileName = "output/" + content.split("output/")[1];
-				File file = new File(fileName.substring(0, fileName.length() - 1));
-				messenger.setImage(file);
+			try {
+				File file = new File(fileName);
+				FileInputStream fis = new FileInputStream(file);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
+//			String fileName = "output/" + content.split("output/")[1];
+//			File file = new File(fileName.substring(0, fileName.length() - 1));
+//			messenger.setImage(file);
 		} else if(protocol.equals("/currentUser")) {
 			messenger.setUser(content);
 		} else if(protocol.equals("/globalUser")) {

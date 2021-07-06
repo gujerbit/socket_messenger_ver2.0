@@ -13,6 +13,7 @@ import view.ConnectDisplay;
 import view.MessengerDisplay;
 
 public class Client extends Default {
+	private static Socket client = null;
 	private static String name = "";
 	private static String roomId = "";
 
@@ -20,7 +21,6 @@ public class Client extends Default {
 		try {
 			ConnectDisplay connect = new ConnectDisplay();
 			MessengerDisplay messenger = new MessengerDisplay();
-			Socket client = new Socket(connect.inputIPAdress.getText(), 1724);
 			
 			connect.createDisplay();
 			connect.setDisplay();
@@ -31,6 +31,12 @@ public class Client extends Default {
 				public void actionPerformed(ActionEvent e) {
 					if(connect.inputIPAdress.getText().isEmpty() || connect.inputRoomNum.getText().isEmpty() || connect.inputUserName.getText().isEmpty()) {
 						return;
+					}
+					
+					try {
+						client = new Socket(connect.inputIPAdress.getText(), 1724);
+					} catch (Exception e1) {
+						e1.printStackTrace();
 					}
 					
 					roomId = connect.inputRoomNum.getText();
