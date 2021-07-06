@@ -155,6 +155,7 @@ public class MessengerDisplay extends Display {
 			//System.out.println(file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 1));
 			//System.out.println(file.getName().substring(0, file.getName().length() - 1));
 			//System.out.println(file.getAbsolutePath().toString().substring(0, file.getAbsolutePath().toString().length() - 1));
+			System.out.println(file.getAbsolutePath());
 			editor.insertHTML(doc, doc.getLength(), "<html><body><img src=\"" + "file:/" + file.getAbsolutePath() + "\" /></body></html>", 0, 0, null);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -23,6 +23,9 @@ public class ServerReceive extends Receive implements Runnable {
 	private DataInputStream data = null;
 	private boolean fileUploading = false;
 	private FileOutputStream fos = null;
+	private String fileName = "";
+	private String roomId = "";
+	private String name = "";
 
 	public ServerReceive(Socket client) {
 		this.client = client;
@@ -52,16 +55,21 @@ public class ServerReceive extends Receive implements Runnable {
 			if(message.contains("@finish")) {
 				fileUploading = false;
 				
-				for(String key : clients.keySet()) {
-					Thread thread = new Thread(new Send(clients.get(key), "@finish"));
-					thread.start();
-				}
-			} else {
 				try {
 					for(String key : clients.keySet()) {
-						Thread thread = new Thread(new Send(clients.get(key), message));
+						Thread thread = new Thread(new Send(clients.get(key), "@fileserver/" + fileName + "@roomId"));
 						thread.start();
+						thread.join();
 					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				sendMessage = "[" + name + " : " + "output/" + fileName + "]";
+				setContent(roomId, sendMessage);
+			} else {
+				try {
+					fos.write(Integer.parseInt(message));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -69,8 +77,8 @@ public class ServerReceive extends Receive implements Runnable {
 		} else {
 			if (message.contains("@join")) {
 				decodeMessage = message.split("@join");
-				String name = decodeMessage[0];
-				String roomId = decodeMessage[1];
+				name = decodeMessage[0];
+				roomId = decodeMessage[1];
 				sendMessage = "[Server Message : " + name + "님이 " + roomId + "방에 입장하셨습니다.]";
 
 				if (globalClients.isEmpty() || !globalClients.containsKey(name)) {
@@ -82,16 +90,19 @@ public class ServerReceive extends Receive implements Runnable {
 
 			} else if (message.contains("@message")) {
 				decodeMessage = message.split("@message");
-				String name = decodeMessage[0];
-				String roomId = decodeMessage[1].split("@roomId")[1];
+				name = decodeMessage[0];
+				roomId = decodeMessage[1].split("@roomId")[1];
 				sendMessage = "[" + name + " : " + decodeMessage[1].split("@roomId")[0] + "]";
 
 				setContent(roomId, sendMessage);
 			} else if (message.contains("@file")) {
 				decodeMessage = message.split("@file");
-//				String name = decodeMessage[0];
-				String roomId = decodeMessage[1].split("@roomId")[1];
-//				String file = decodeMessage[1].split("@roomId")[0];
+				name = decodeMessage[0];
+				roomId = decodeMessage[1].split("@roomId")[1];
+				String dir = decodeMessage[1].split("@roomId")[0];
+				File file = new File(dir);
+				fileName = file.getName();
+				//System.out.println(fileName);
 //				System.out.println(file);
 //				String dir = "";
 //
@@ -116,14 +127,9 @@ public class ServerReceive extends Receive implements Runnable {
 //					setContent(roomId, sendMessage);
 //				}
 				fileUploading = true;
+				
 				try {
-					vo = rooms.get(roomId);
-					clients = vo.getClients();
-					
-					for(String key : clients.keySet()) {
-						Thread thread = new Thread(new Send(clients.get(key), "@upload"));
-						thread.start();
-					}
+					fos = new FileOutputStream("server/" + fileName);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -220,9 +226,15 @@ public class ServerReceive extends Receive implements Runnable {
 	private synchronized void messageSetting(String key) {
 		try {
 			for (String message : messages) {
-				Thread setMessage = new Thread(new Send(clients.get(key), message + "@update/message"));
-				setMessage.start();
-				setMessage.join();
+				if(message.contains("output/")) {
+					Thread setMessage = new Thread(new Send(clients.get(key), message + "@update/img"));
+					setMessage.start();
+					setMessage.join();
+				} else {
+					Thread setMessage = new Thread(new Send(clients.get(key), message + "@update/message"));
+					setMessage.start();
+					setMessage.join();
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

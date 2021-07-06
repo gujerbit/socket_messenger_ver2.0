@@ -3,6 +3,7 @@ package client;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.Socket;
 
@@ -15,6 +16,7 @@ public class ClientReceive extends Receive implements Runnable {
 	private String content;
 	private String protocol;
 	private boolean fileUploading = false;
+	private FileOutputStream fos = null;
 	
 	public ClientReceive(Socket client, MessengerDisplay messenger) {
 		this.client = client;
@@ -42,7 +44,11 @@ public class ClientReceive extends Receive implements Runnable {
 			if(message.contains("@finish")) {
 				fileUploading = false;
 			} else {
-				
+				try {
+					fos.write(Integer.parseInt(message));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		} else {
 			if(message.contains("@clear")) {
@@ -56,8 +62,16 @@ public class ClientReceive extends Receive implements Runnable {
 				protocol = splitMessage[1];
 				
 				update();
-			} else if(message.contains("@upload")) {
+			} else if(message.contains("@file")) {
 				fileUploading = true;
+				String[] decodeMessage = message.split("@fileserver/");
+				String fileName = decodeMessage[1].split("@roomId")[0];
+				
+				try {
+					fos = new FileOutputStream(new File("output/" + fileName));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -67,12 +81,13 @@ public class ClientReceive extends Receive implements Runnable {
 		if(protocol.equals("/message")) {
 			messenger.setMessage(content);
 		} else if(protocol.contains("/img")) {
-			String[] decodeMessage = content.split("@file");
-			String fileName = decodeMessage[1].split("@roomId")[0];
+			String[] decodeMessage = content.split("@upload");
+			String temp = decodeMessage[0].split("output/")[1];
+			String fileName = "output/" + temp.substring(0, temp.length() - 1);
 			
 			try {
 				File file = new File(fileName);
-				FileInputStream fis = new FileInputStream(file);
+				messenger.setImage(file);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
