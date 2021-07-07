@@ -2,6 +2,8 @@ package client;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.net.Socket;
 
@@ -86,6 +88,27 @@ public class Client extends Default {
 				}
 			});
 			
+			messenger.exitRoom.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					System.out.println("exit");
+					Thread thread = new Thread(new Send(client, name + "@exit" + roomId));
+					thread.start();
+					messenger.closeDisplay();
+				}
+			});
+			
+			messenger.viewRoom.addActionListener(new ActionListener() { //방 초대	
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String message = messenger.messageField.getText();
+					messenger.messageField.setText("");
+					messenger.messageField.requestFocus();
+					
+					Thread thread = new Thread(new Send(client, message + "@join" + roomId));
+					thread.start();
+				}
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -72,6 +72,13 @@ public class ClientReceive extends Receive implements Runnable {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			} else if(message.contains("@exit")) {
+				try {
+					Thread.sleep(3000);
+					System.exit(0);	
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

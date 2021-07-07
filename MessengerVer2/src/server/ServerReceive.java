@@ -26,6 +26,7 @@ public class ServerReceive extends Receive implements Runnable {
 	private String fileName = "";
 	private String roomId = "";
 	private String name = "";
+	private boolean userExit = false;
 
 	public ServerReceive(Socket client) {
 		this.client = client;
@@ -35,6 +36,8 @@ public class ServerReceive extends Receive implements Runnable {
 	public void run() {
 		while (true) {
 			try {
+				if(userExit) break;
+				
 				input = client.getInputStream();
 				data = new DataInputStream(input);
 				String message = data.readUTF();
@@ -87,7 +90,44 @@ public class ServerReceive extends Receive implements Runnable {
 
 				setRoom(roomId, name, sendMessage);
 			} else if (message.contains("@exit")) {
-
+				decodeMessage = message.split("@exit");
+				name = decodeMessage[0];
+				roomId = decodeMessage[1];
+				sendMessage = "[Server Message : " + name + "님이" + roomId + "방을 나가셨습니다.]";
+				
+				RoomVO vo = rooms.get(roomId);
+				Map<String, Socket> clients = vo.getClients();
+				clients.remove(name);
+				vo.setClients(clients);
+				rooms.put(roomId, vo);
+				
+				if(clients.isEmpty()) {
+					rooms.remove(roomId);
+				} else {
+					setContent(roomId, sendMessage);
+				}
+				
+				boolean userEmpty = true;
+				
+				if(!rooms.isEmpty()) {
+					for(String key : rooms.keySet()) {
+						vo = rooms.get(key);
+						clients = vo.getClients();
+						
+						if(clients.containsKey(name)) userEmpty = false;
+					}
+				}
+				
+				if(userEmpty) {
+					globalClients.remove(name);
+					
+					Thread thread = new Thread(new Send(client, "@exit"));
+					thread.start();
+				}
+				
+				update();
+				
+				userExit = true;
 			} else if (message.contains("@message")) {
 				decodeMessage = message.split("@message");
 				name = decodeMessage[0];

@@ -14,6 +14,10 @@ public abstract class Display {
 		frame.setVisible(true);
 	}
 	
+	public void closeDisplay() {
+		frame.setVisible(false);
+	}
+	
 	public abstract void setDisplay();
 	
 }
