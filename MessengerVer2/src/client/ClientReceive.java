@@ -2,7 +2,6 @@ package client;
 
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.Socket;
@@ -98,9 +97,6 @@ public class ClientReceive extends Receive implements Runnable {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-//			String fileName = "output/" + content.split("output/")[1];
-//			File file = new File(fileName.substring(0, fileName.length() - 1));
-//			messenger.setImage(file);
 		} else if(protocol.equals("/currentUser")) {
 			messenger.setUser(content);
 		} else if(protocol.equals("/globalUser")) {

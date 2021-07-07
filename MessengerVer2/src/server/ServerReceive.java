@@ -2,7 +2,6 @@ package server;
 
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.Socket;
@@ -142,30 +141,6 @@ public class ServerReceive extends Receive implements Runnable {
 				String dir = decodeMessage[1].split("@roomId")[0];
 				File file = new File(dir);
 				fileName = file.getName();
-				//System.out.println(fileName);
-//				System.out.println(file);
-//				String dir = "";
-//
-//				try {
-//					File temp = new File(file);
-//					dir = "output/" + temp.getName();
-//					File outputFile = new File(dir);
-//					FileInputStream fis = new FileInputStream(file);
-//					FileOutputStream fos = new FileOutputStream(outputFile);
-//					int buffer = 0;
-//
-//					while((buffer = fis.read()) != -1) {
-//						fos.write(buffer);
-//					}
-//					
-//					fos.close();
-//					fis.close();
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				} finally {
-//					sendMessage = dir;
-//					setContent(roomId, sendMessage);
-//				}
 				fileUploading = true;
 				
 				try {
